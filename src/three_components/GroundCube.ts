@@ -4,10 +4,11 @@ import {
   ExtrudeGeometry, 
   Group, 
   MathUtils, 
-  Mesh, 
   MeshLambertMaterial, 
   MeshStandardMaterial, 
-  Shape, } from "three";
+  Shape } from "three";
+
+import { MyMesh } from "./MyMesh";
 
 class GroundCube extends Group {
 
@@ -16,17 +17,28 @@ class GroundCube extends Group {
   #width;
   #color;
   #transparency;
+  #isSelectable;
+  #outsideMesh;
 
-  constructor(length: number, width: number, color?: number, transparency?: number) {
+  constructor(
+    length: number, 
+    width: number, 
+    options: {
+      color?: number,
+      transparency?: number,
+      selectable?: boolean
+    }) {
     super();
     this.#length = length;
     this.#width = width;
-    this.#color = color ? color : 0x000000;
-    this.#transparency = transparency ? transparency : 1;
+    this.#color = options.color ? options.color : 0x000000;
+    this.#transparency = options.transparency ? options.transparency : 1;
+    this.#isSelectable = options.selectable == undefined ? true : options.selectable;
+    this.#outsideMesh = this.#createOuterCube(),
 
     this.add(
       this.#createInnerCub(),
-      this.#createOuterCube(),
+      this.#outsideMesh
       );
     
     const factor = 0.92;
@@ -45,12 +57,12 @@ class GroundCube extends Group {
       fog: false,
     });
 
-    const mesh = new Mesh(geometry, material);
+    const mesh = new MyMesh(geometry, material, {selectable: false});
     mesh.scale.set(1.06, 1, 1.06);
     return mesh;
   }
 
-  #createOuterCube() {
+  #createOuterCube(): MyMesh {
     // length controls the Y axis (height)
     // width controls the Z axis (depth)
     const shape = new Shape();
@@ -84,17 +96,17 @@ class GroundCube extends Group {
       fog: false,
     });
 
-    const mesh = new Mesh(geometry, material);
+    this.#outsideMesh = new MyMesh(geometry, material, {selectable: this.#isSelectable});
 
-    mesh.rotation.order = "ZYX";
-    mesh.rotation.set(0,Math.PI/2,Math.PI/2);
-    mesh.position.set(this.#length/2,-this.#width/2,this.#width/2);
+    this.#outsideMesh.rotation.order = "ZYX";
+    this.#outsideMesh.rotation.set(0,Math.PI/2,Math.PI/2);
+    this.#outsideMesh.position.set(this.#length/2,-this.#width/2,this.#width/2);
 
     // Must be set higher than the outside or else the inside
     // will disappear when transparency is set.
-    mesh.renderOrder = 1;
+    this.#outsideMesh.renderOrder = 1;
 
-    return mesh;
+    return this.#outsideMesh;
 
   }
 
@@ -103,6 +115,14 @@ class GroundCube extends Group {
     this.rotation.x += this.#radiansPerSecond * delta;
     this.rotation.y += this.#radiansPerSecond * delta;
   }
+
+  isSelectable() {
+    return this.#outsideMesh.isSelectable();
+  }
+
+  setSelectable(val: boolean) {
+    this.#outsideMesh.setSelectable(val);
+  }  
 
 }
 

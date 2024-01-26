@@ -1,10 +1,16 @@
-import { PerspectiveCamera } from "three";
+import { MathUtils, PerspectiveCamera } from "three";
 
 class MyPerspectiveCamera extends PerspectiveCamera {
 
+  #rotationX = MathUtils.degToRad(45);
+
   constructor(fov: number, aspect: number, near: number, far: number) {
     super(fov, aspect, near, far);
-    this.position.set(0,0,10);
+
+    // Position: (RIGHT, UP, DOWN)
+    this.position.set(-4,6,12);
+    this.rotation.order = "YZX";
+    this.rotation.set(-0.6, -1.4, 0);
   }
 
 }

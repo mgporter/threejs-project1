@@ -1,5 +1,8 @@
 import { Camera, Clock, Scene, WebGLRenderer } from "three";
 
+import { MyFlyControls } from "./MyFlyControls";
+import { FlyControls } from "three/examples/jsm/controls/FlyControls";
+
 interface Updatable {
   tick: (delta: number) => void;
 }
@@ -11,12 +14,15 @@ class Loop {
   #scene;
   #renderer;
   #clock;
+  #controls;
+  #count = 0;
   
-  constructor(camera: Camera, scene: Scene, renderer: WebGLRenderer) {
+  constructor(camera: Camera, scene: Scene, renderer: WebGLRenderer, controls: MyFlyControls) {
     this.#updatables = [];
     this.#camera = camera;
     this.#scene = scene;
     this.#renderer = renderer;
+    this.#controls = controls;
     this.#clock = new Clock();
   }
 
@@ -40,6 +46,7 @@ class Loop {
     for (let obj of this.#updatables) {
       obj.tick(delta);
     }
+    this.#controls.update(delta);
   }
 
 }

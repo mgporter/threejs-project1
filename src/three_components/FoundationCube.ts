@@ -3,7 +3,10 @@ import { GroundCube } from "./GroundCube";
 class FoundationCube extends GroundCube {
   
   constructor(length: number, width: number) {
-    super(length, width, 0x00d3ff, 0.7);
+    super(length, width, {
+      color: 0x9e670c,
+      selectable: false
+    });
   }
 
 }

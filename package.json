@@ -1,0 +1,26 @@
+{
+  "name": "threejs-project1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "webpack serve --open"
+  },
+  "author": "mgporter",
+  "license": "GNU v3.0",
+  "devDependencies": {
+    "@types/three": "^0.160.0",
+    "css-loader": "^6.9.1",
+    "style-loader": "^3.3.4",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "three": "^0.160.1"
+  }
+}

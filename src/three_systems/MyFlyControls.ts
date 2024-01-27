@@ -310,8 +310,6 @@ class MyFlyControls extends EventDispatcher {
 
     this.#camera.position.clamp(this.#moveLimits.MIN, this.#moveLimits.MAX);
 
-    console.log(this.#camera.position);
-
 
     // !!! Things below this are not needed for our simplified controls
 

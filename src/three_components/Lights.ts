@@ -1,9 +1,9 @@
-import { DirectionalLight, AmbientLight, Vector3 } from "three";
+import { DirectionalLight, AmbientLight, Vector3, Color } from "three";
 
 class Lights {
 
   static createDirectionalLight() {
-    const light = new DirectionalLight('white', 8);
+    const light = new DirectionalLight(new Color(0xfdffbd), 8);
     light.position.set(10,10,10);
     return light;
   }

@@ -1,10 +1,10 @@
-import { BufferGeometry, Camera, Color, Material, Mesh, MeshStandardMaterial, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Vector2 } from "three";
+import {
+  Camera, 
+  Raycaster, 
+  Vector2 } from "three";
 
-import { MyMesh } from "../three_components/MyMesh";
-
-interface Selectable {
-  isSelectable: () => boolean;
-}
+import { SelectableMesh } from "../three_components/SelectableMesh";
+import { SelectableObject3D } from "../types";
 
 class MouseEvents {
 
@@ -12,35 +12,54 @@ class MouseEvents {
   #canvas;
   #raycaster;
   #mouse;
-  #objects: Object3D[];
-
+  #objects: SelectableMesh[];
+  
   constructor(camera: Camera, canvas: HTMLElement) {
     this.#camera = camera;
     this.#canvas = canvas;
     this.#raycaster = new Raycaster();
     this.#mouse = new Vector2();
     this.#objects = [];
-
-    canvas.addEventListener("mousedown", (e) => {
-      this.#handleClick(e);
-    });
   }
 
-  #handleClick(e: MouseEvent) {
-    e.preventDefault();
+  getCamera() {
+    return this.#camera;
+  }
 
-    const pointer = this.#getPointerCoordinates(e);
+  getCanvas() {
+    return this.#canvas;
+  }
 
-    this.#raycaster.setFromCamera(pointer, this.#camera);
+  getObjects() {
+    return this.#objects;
+  }
 
-    const intersections = this.#raycaster.intersectObjects(
-      this.#objects) as {object: MyMesh<BufferGeometry, MeshStandardMaterial>}[];
+  // #handleMouseover(e: MouseEvent) {
+  //   e.preventDefault();
+  //   console.log("test")
 
-    if (intersections.length === 0 ||
-      !intersections[0].object.isSelectable()) return;
+  //   const target = this.#getIntersectedObject(e);
+  //   if (target == null) return;
 
-    intersections[0].object.material.color.set(0x222222);
-    
+  //   if (!target.currentlySelected()) target.select();
+  // }
+
+  // #handleClick(e: MouseEvent) {
+  //   e.preventDefault();
+
+  //   const target = this.#getIntersectedObject(e);
+  //   if (target == null) return;
+
+  //   console.log(target.getCoordinates());
+
+  //   target.toggleSelect();
+  // }
+
+  getIntersectedObject(e: MouseEvent) {
+    this.#raycaster.setFromCamera(this.#getPointerCoordinates(e), this.#camera);
+    return this.#raycaster.intersectObjects(this.#objects, false) as {object: SelectableMesh}[];
+    // if (intersections.length === 0) return null;
+    // else return intersections[0].object;
   }
 
   #getPointerCoordinates(e: MouseEvent) {
@@ -54,9 +73,11 @@ class MouseEvents {
     return this.#mouse;
   }
 
-  setObjectsArray(objects: Object3D[]) {
+  setObjectsArray(objects: SelectableMesh[]) {
     this.#objects = objects;
   }
+
+  removeEventListeners() {}
 
 }
 

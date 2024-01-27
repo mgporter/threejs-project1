@@ -3,34 +3,37 @@ import {
   Color, 
   ExtrudeGeometry, 
   Group, 
-  MathUtils, 
   MeshLambertMaterial, 
   MeshStandardMaterial, 
-  Shape } from "three";
+  Shape, 
+  Vector3} from "three";
 
 import { MyMesh } from "./MyMesh";
+import { SelectableMesh } from "./SelectableMesh";
 
 class GroundCube extends Group {
 
-  #radiansPerSecond = MathUtils.degToRad(30);
   #length;
   #width;
   #color;
   #transparency;
   #isSelectable;
   #outsideMesh;
+  #coordinates;
 
   constructor(
     length: number, 
-    width: number, 
+    width: number,
+    coordinates: Vector3, 
     options: {
       color?: number,
       transparency?: number,
-      selectable?: boolean
+      selectable?: boolean,
     }) {
     super();
     this.#length = length;
     this.#width = width;
+    this.#coordinates = coordinates;
     this.#color = options.color ? options.color : 0x000000;
     this.#transparency = options.transparency ? options.transparency : 1;
     this.#isSelectable = options.selectable == undefined ? true : options.selectable;
@@ -57,12 +60,12 @@ class GroundCube extends Group {
       fog: false,
     });
 
-    const mesh = new MyMesh(geometry, material, {selectable: false});
+    const mesh = new MyMesh(geometry, material);
     mesh.scale.set(1.06, 1, 1.06);
     return mesh;
   }
 
-  #createOuterCube(): MyMesh {
+  #createOuterCube(): SelectableMesh {
     // length controls the Y axis (height)
     // width controls the Z axis (depth)
     const shape = new Shape();
@@ -96,25 +99,38 @@ class GroundCube extends Group {
       fog: false,
     });
 
-    this.#outsideMesh = new MyMesh(geometry, material, {selectable: this.#isSelectable});
+    this.#outsideMesh = new SelectableMesh(
+      geometry, 
+      material, 
+      this.#coordinates, 
+      this.#isSelectable);
 
     this.#outsideMesh.rotation.order = "ZYX";
-    this.#outsideMesh.rotation.set(0,Math.PI/2,Math.PI/2);
-    this.#outsideMesh.position.set(this.#length/2,-this.#width/2,this.#width/2);
+    this.#outsideMesh.rotation.set(0, Math.PI/2, Math.PI/2);
+    this.#outsideMesh.position.set(this.#length/2, -this.#width/2, this.#width/2);
 
-    // Must be set higher than the outside or else the inside
+    // Must be set higher than the inside or else the inside
     // will disappear when transparency is set.
     this.#outsideMesh.renderOrder = 1;
+
+    // Overwrite the mesh's hook with our GroundCube implementation
+    this.#outsideMesh.changeToSelectedAppearance = () => {
+      this.#outsideMesh.material.color.set(0x222222);
+    }
+
+    this.#outsideMesh.changeToUnselectedAppearance = () => {
+      this.#outsideMesh.material.color.set(this.#color);
+    } 
 
     return this.#outsideMesh;
 
   }
 
-  tick(delta: number) {
-    this.rotation.z += this.#radiansPerSecond * delta;
-    this.rotation.x += this.#radiansPerSecond * delta;
-    this.rotation.y += this.#radiansPerSecond * delta;
-  }
+  // tick(delta: number) {
+  //   this.rotation.z += this.#radiansPerSecond * delta;
+  //   this.rotation.x += this.#radiansPerSecond * delta;
+  //   this.rotation.y += this.#radiansPerSecond * delta;
+  // }
 
   isSelectable() {
     return this.#outsideMesh.isSelectable();
@@ -122,7 +138,15 @@ class GroundCube extends Group {
 
   setSelectable(val: boolean) {
     this.#outsideMesh.setSelectable(val);
-  }  
+  }
+
+  getOutsideMesh() {
+    return this.#outsideMesh;
+  }
+
+  getCoordinates() {
+    return this.#outsideMesh.getCoordinates();
+  }
 
 }
 

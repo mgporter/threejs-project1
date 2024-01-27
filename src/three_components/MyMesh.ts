@@ -2,34 +2,30 @@ import {
   Mesh,
   BufferGeometry,
   NormalBufferAttributes,
-  Material,
-  Object3DEventMap } from "three";
+  Object3DEventMap,
+  Vector3} from "three";
+
+import { ColoredMaterial } from "../types";
 
 class MyMesh<TGeometry extends BufferGeometry<NormalBufferAttributes> = BufferGeometry<NormalBufferAttributes>, 
-  TMaterial extends Material | Material[] = Material | Material[], 
+  TMaterial extends ColoredMaterial = ColoredMaterial, 
   TEventMap extends Object3DEventMap = Object3DEventMap> 
   extends Mesh<TGeometry, TMaterial, TEventMap> {
 
-  #isSelectable = true;
+  #coordinates;
 
-  constructor(
-    geometry: TGeometry, 
-    material: TMaterial,
-    options: {
-      selectable?: boolean;
-    }) {
+  constructor(geometry: TGeometry, material: TMaterial, coordinates?: Vector3) {
     super(geometry, material);
-    
-    if (options.selectable != undefined)
-      this.#isSelectable = options.selectable;
+
+    this.#coordinates = coordinates ? coordinates : new Vector3(0,0,0);
   }
 
   isSelectable() {
-    return this.#isSelectable;
+    return false;
   }
 
-  setSelectable(val: boolean) {
-    this.#isSelectable = val;
+  getCoordinates() {
+    return this.#coordinates;
   }
 
 }
